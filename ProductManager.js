@@ -1,56 +1,62 @@
 const fs = require('fs');
 
-function ProductManager(path) {
-  this.path = path;
+function ProductManager(productPath, cartPath) {
+  this.productPath = productPath
+  this.cartPath = cartPath
 
-  try {
-    const data = fs.readFileSync(this.path, 'utf8');
-    this.products = JSON.parse(data);
-  } catch (error) {
-    this.products = [];
-    fs.writeFileSync(this.path, '[]', 'utf8');
+  this.products = loadJsonData(productPath)
+  this.carts = loadJsonData(cartPath)
 
-  }
 
-  this.addProduct = function(productData) {
-    const { title, description, price, thumbnail, code, stock } = productData;
-
-    const existingProduct = this.products.find((product) => product.code === code);
-    if (existingProduct) {
-      throw new Error('El producto con este código ya existe.');
+  this.addProduct = function (productData) {
+    const { title, description, code, price, stock, category, thumbnails } = productData;
+    if (!title || !description || !code || !price || !stock || !category) {
+      throw new Error('Todos los campos son obligatorios.')
     }
 
-    const productId = this.products.length > 0 ? this.products[this.products.length - 1].id + 1 : 1;
+    const existingProduct = this.products.find((product) => product.code === code)
+    if (existingProduct) {
+      throw new Error('El producto con este código ya existe.')
+    }
+
+    const productId = generateUniqueId(this.products)
 
     const newProduct = {
       id: productId,
       title,
       description,
-      price,
-      thumbnail,
       code,
+      price,
+      status: true,
       stock,
-    };
+      category,
+      thumbnails,
+    }
 
-    this.products.push(newProduct);
-    this.saveProductsToFile();
+    this.products.push(newProduct)
+    this.saveProductsToFile()
 
-    return newProduct;
+    return newProduct
   };
 
-  this.getProducts = function() {
-    return this.products;
+
+
+
+  this.getProducts = function () {
+    return this.products
   };
 
-  this.getProductById = function(productId) {
+
+  this.getProductById = function (productId) {
     const product = this.products.find((product) => product.id === productId);
     if (!product) {
       throw new Error('Producto no encontrado.');
     }
-    return product;
+    return product
   };
 
-  this.updateProduct = function(productId, updatedProduct) {
+
+  this.updateProduct = function (productId, updatedProduct) {
     const productIndex = this.products.findIndex((product) => product.id === productId);
     if (productIndex === -1) {
       throw new Error('Producto no encontrado.');
@@ -62,7 +68,8 @@ function ProductManager(path) {
     return this.products[productIndex];
   };
 
-  this.deleteProduct = function(productId) {
+
+  this.deleteProduct = function (productId) {
     const productIndex = this.products.findIndex((product) => product.id === productId);
     if (productIndex === -1) {
       throw new Error('Producto no encontrado.');
@@ -72,47 +79,77 @@ function ProductManager(path) {
     this.saveProductsToFile();
   };
 
-  this.saveProductsToFile = function() {
-    fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2));
+
+
+
+  this.createCart = function () {
+    const cartId = generateUniqueId(this.carts)
+    const newCart = {
+      id: cartId,
+      products: [],
+    }
+  
+    this.carts.push(newCart)
+    this.saveCartsToFile()
+    return newCart
   };
-}
+
+
+  this.addToCart = function (cartId, productId, quantity) {
+    const cart = this.getCartById(cartId)
+    const product = this.getProductById(productId)
+
+    const existingItem = cart.products.find((item) => item.product.id === productId)
+
+    if (existingItem) {
+      existingItem.quantity += quantity
+    } else {
+      cart.products.push({ product, quantity })
+    }
+
+    this.saveCartsToFile()
+
+    return cart
+  };
 
 
 
-const productManager = new ProductManager('productos.json');
+  this.getCartById = function (cartId) {
+    const cart = this.carts.find((cart) => cart.id === cartId)
+    if (!cart) {
+      throw new Error('Carrito no encontrado.')
+    }
+    return cart
+  };
 
-console.log(productManager.getProducts()); // []
+  this.saveCartsToFile = function () {
+    fs.writeFileSync(this.cartPath, JSON.stringify(this.carts, null, 2))
+  };
 
-const newProduct = productManager.addProduct({
-  title: 'producto prueba',
-  description: 'Este es un producto prueba',
-  price: 200,
-  thumbnail: 'Sin imagen',
-  code: 'abc12345678901234',
-  stock: 25,
-});
+};
 
-console.log(productManager.getProducts());
 
-try {
-  productManager.addProduct({
-    title: 'producto prueba',
-    description: 'Este es un producto prueba',
-    price: 200,
-    thumbnail: 'Sin imagen',
-    code: 'abc123',
-    stock: 25,
-  });
-} catch (error) {
-  console.error(error.message);
-}
 
-try {
-  const nonExistingProduct = productManager.getProductById('nonexistentid');
-  console.log(nonExistingProduct);
-} catch (error) {
-  console.error(error.message);
-}
+function loadJsonData(filePath) {
+  try {
+    const data = fs.readFileSync(filePath, 'utf8')
+    return JSON.parse(data)
+  } catch (error) {
+    return []
+  }
+};
 
+
+
+
+
+function generateUniqueId(collection) {
+  if (collection.length === 0) {
+    return 1
+  }
+
+  const lastItem = collection[collection.length - 1]
+  return lastItem.id + 1
+};
 
 module.exports = ProductManager;
