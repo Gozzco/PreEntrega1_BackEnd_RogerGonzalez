@@ -1,11 +1,9 @@
 const express = require('express')
 const ProductManager = require('./ProductManager')
-const CartManager = require('./CartManager')
 const app = express()
 const port = 8080
 
-const productsRouter = require('./productsRouter')
-const cartsRouter = require('./cartsRouter')
+const cartsRouter = require('./routes/cartsRouter')
 
 
 app.use(express.json())

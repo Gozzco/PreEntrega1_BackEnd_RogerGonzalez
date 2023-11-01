@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { generateUniqueId } = require('./utils');
 
-
-const CartManager = require('./CartManager');
 const cartManager = new CartManager('carrito.json');
 
 
