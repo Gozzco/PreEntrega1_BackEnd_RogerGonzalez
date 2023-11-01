@@ -1,5 +1,8 @@
-const express = require('express')
-const cartsRouter = express.Router()
+const express = require('express');
+const CartManager = require('../CartManager');
+
+const cartsRouter = express.Router();
+const cartManager = new CartManager('carrito.json');
 
 
 cartsRouter.post('/', (req, res) => {
@@ -18,7 +21,7 @@ cartsRouter.get('/:cid', (req, res) => {
   }
 });
 
-cartsRouter.post('/:cid/product/:pid', (req, res) => {
+cartsRouter.post('/:cid/products/:pid', (req, res) => {
   const cartId = req.params.cid
   const productId = req.params.pid
   const quantity = parseInt(req.body.quantity)
