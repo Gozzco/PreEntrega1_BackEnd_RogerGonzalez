@@ -1,43 +1,36 @@
-const express = require('express');
-const router = express.Router();
-
-const cartManager = new CartManager('carrito.json');
+const express = require('express')
+const cartsRouter = express.Router()
 
 
-
-router.post('/', (req, res) => {
-  const newCart = {
-    id: generateUniqueId(cartManager.carts),
-    products: [],
-  }
-
-  cartManager.createCart(newCart);
-  res.json(newCart);
+cartsRouter.post('/', (req, res) => {
+  const newCart = cartManager.createCart()
+  res.status(201).json(newCart)
 });
 
-
-
-router.get('/:id', (req, res) => {
-  const cartId = req.params.id
+cartsRouter.get('/:cid', (req, res) => {
+  const cartId = req.params.cid
   const cart = cartManager.getCartById(cartId)
-  res.json(cart)
+
+  if (cart) {
+    res.json(cart.products)
+  } else {
+    res.status(404).json({ error: 'Carrito no encontrado' })
+  }
 });
 
-
-
-router.post('/:cid/product/:pid', (req, res) => {
+cartsRouter.post('/:cid/product/:pid', (req, res) => {
   const cartId = req.params.cid
   const productId = req.params.pid
-  const { quantity } = req.body
+  const quantity = parseInt(req.body.quantity)
 
   try {
-    cartManager.addProductToCart(cartId, productId, quantity)
-    res.json({ message: 'Producto agregado al carrito' })
+    const updatedCart = cartManager.addProductToCart(cartId, productId, quantity)
+    res.json(updatedCart.products)
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(404).json({ error: error.message })
   }
 });
 
+module.exports = cartsRouter
 
-module.exports = router;
 

@@ -1,22 +1,15 @@
-const express = require('express')
-const ProductManager = require('./ProductManager')
-const app = express()
-const port = 8080
+const express = require('express');
+const app = express();
+const productsRouter = require('./routes/productsRouter');
+const cartsRouter = require('./routes/cartsRouter');
 
-const cartsRouter = require('./routes/cartsRouter')
+app.use(express.json());
+app.use('/api/products', productsRouter);
+app.use('/api/carts', cartsRouter);
 
-
-app.use(express.json())
-
-const productManager = new ProductManager('productos.json')
-const cartManager = new CartManager('carrito.json')
-
-
-app.use('/api/products', productsRouter)
-
-
-app.use('/api/carts', cartsRouter)
-
+const port = 8080;
 app.listen(port, () => {
-  console.log(`Servidor Express corriendo en el puerto ${port}`)
+  console.log(`Servidor Express corriendo en el puerto ${port}`);
 });
+
+
