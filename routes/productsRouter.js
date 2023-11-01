@@ -1,5 +1,5 @@
 const express = require('express')
-const ProductManager = require('./ProductManager')
+const ProductManager = require('../ProductManager')
 
 const productRouter = express.Router()
 const productManager = new ProductManager('productos.json')
