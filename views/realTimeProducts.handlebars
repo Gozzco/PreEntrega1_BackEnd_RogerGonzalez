@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Productos</title>
+</head>
+<body>
+  <h1>Lista de Productos</h1>
+
+ <ul id="productList">
+  {{#each productos}}
+  <li>{{this.title}}</li>
+  {{/each}}
+</ul>
+
+
+  <form id="productForm">
+    <input type="text" name="title" placeholder="Nombre del producto">
+    <button type="submit">Agregar Producto</button>
+  </form>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    document.getElementById('productForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = e.target.title.value;
+      socket.emit('nuevo-producto', { title });
+      e.target.title.value = '';
+    });
+
+    socket.on('producto-agregado', (nuevoProducto) => {
+      const productList = document.getElementById('productList');
+      const listItem = document.createElement('li');
+      listItem.textContent = nuevoProducto.title;
+      productList.appendChild(listItem);
+    });
+
+  </script>
+</body>
+</html>

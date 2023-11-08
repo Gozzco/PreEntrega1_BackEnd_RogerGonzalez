@@ -1,62 +1,18 @@
-const express = require('express')
-const ProductManager = require('../ProductManager')
+const express = require('express');
+const ProductManager = require('../ProductManager');
+const exphbs = require('express-handlebars'); 
+const productRouter = express.Router();
+const productManager = new ProductManager('productos.json');
 
-const productRouter = express.Router()
-const productManager = new ProductManager('productos.json')
 
+const hbs = exphbs.create({ extname: '.handlebars' });
+productRouter.engine('handlebars', hbs.engine);
+productRouter.set('view engine', 'handlebars');
 
 productRouter.get('/', (req, res) => {
-  const limit = parseInt(req.query.limit)
-  let products = productManager.getProducts()
-
-  if (!isNaN(limit)) {
-    products = products.slice(0, limit)
-  }
-
-  res.json(products)
-});
-
-
-productRouter.get('/:pid', (req, res) => {
-  const productId = parseInt(req.params.pid)
-  try {
-    const product = productManager.getProductById(productId)
-    res.json(product)
-  } catch (error) {
-    res.status(404).json({ error: 'Producto no encontrado' })
-  }
-});
-
-
-productRouter.post('/', (req, res) => {
-  try {
-    const newProduct = productManager.addProduct(req.body)
-    res.status(201).json(newProduct)
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-});
-
-
-productRouter.put('/:pid', (req, res) => {
-  const productId = parseInt(req.params.pid)
-  try {
-    const updatedProduct = productManager.updateProduct(productId, req.body)
-    res.json(updatedProduct)
-  } catch (error) {
-    res.status(404).json({ error: error.message })
-  }
-});
-
-
-productRouter.delete('/:pid', (req, res) => {
-  const productId = parseInt(req.params.pid)
-  try {
-    productManager.deleteProduct(productId)
-    res.json({ message: 'Producto eliminado exitosamente' })
-  } catch (error) {
-    res.status(404).json({ error: error.message })
-  }
+    const products = productManager.getProducts();
+    res.render('home', { products });
 });
 
 module.exports = productRouter;
+

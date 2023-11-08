@@ -86,9 +86,9 @@ class ProductManager {
   }
 
   getProducts() {
-    return this.products
+    return this.products;
   }
 }
 
-module.exports = ProductManager
+module.exports = ProductManager;
 
