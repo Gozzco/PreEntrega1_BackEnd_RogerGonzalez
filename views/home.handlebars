@@ -3,17 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Lista de Productos</title>
 </head>
 <body>
 
     <h1>Lista de Productos</h1>
-<ul>
-  {{#each products}}
-    <li>{{this.title}}</li>
-  {{/each}}
-</ul>
 
+    <ul>
+        {{#each products}}
+            <li>
+                <strong>{{this.title}}</strong>
+                <p>{{this.description}}</p>
+                <p>Precio: ${{this.price}}</p>
+                <p>Stock: {{this.stock}}</p>
+                <form action="/api/carts/{{cartId}}/products/{{this.id}}" method="post">
+                    <label for="quantity">Cantidad:</label>
+                    <input type="number" name="quantity" value="1" min="1">
+                    <button type="submit">Agregar al Carrito</button>
+                </form>
+            </li>
+        {{/each}}
+    </ul>
     
 </body>
 </html>

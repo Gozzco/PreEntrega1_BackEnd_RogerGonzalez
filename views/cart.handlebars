@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Carrito</title>
+</head>
+<body>
+
+    <h1>Detalles del Carrito</h1>
+
+    <ul>
+        {{#each cart.products}}
+            <li>
+                <strong>{{this.title}}</strong>
+                <p>Cantidad: {{this.quantity}}</p>
+                <p>Precio unitario: ${{this.price}}</p>
+                <p>Total: ${{this.quantity * this.price}}</p>
+                <form action="/api/carts/{{cartId}}/products/{{this.id}}" method="put">
+                    <label for="quantity">Actualizar Cantidad:</label>
+                    <input type="number" name="quantity" value="{{this.quantity}}" min="1">
+                    <button type="submit">Actualizar Cantidad</button>
+                </form>
+                <form action="/api/carts/{{cartId}}/products/{{this.id}}" method="delete">
+                    <button type="submit">Eliminar Producto</button>
+                </form>
+            </li>
+        {{/each}}
+    </ul>
+
+    <p>Total del Carrito: ${{cart.totalPrice}}</p>
+    
+</body>
+</html>

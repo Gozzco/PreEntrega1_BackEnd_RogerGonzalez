@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
 const productsRouter = require('./routes/productsRouter');
 const cartsRouter = require('./routes/cartsRouter');
@@ -17,62 +18,34 @@ app.use(express.json());
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 
-const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+const mongoose = require('mongoose');
+const mongoURI = 'mongodb+srv://rogeragonz:<nowimcoding.18>@cluster0.fai0umj.mongodb.net/test?retryWrites=true&w=majority';
+mongoose.connect(mongoURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
+const db = mongoose.connection;
 
-
-
+db.on('error', console.error.bind(console, 'Error de conexión a MongoDB:'));
+db.once('open', () => {
+  console.log('Conexión exitosa a MongoDB');
+});
 
 io.on('connection', (socket) => {
   console.log('Cliente conectado via WebSocket');
 
   socket.on('nuevo-producto', (nuevoProducto) => {
-    const product = {
-      id: uuidv4(),
-      title: nuevoProducto.title,
-      description: nuevoProducto.description,
-    };
-
-    const products = loadProducts();
-    products.push(product);
-    saveProducts(products);
-
-    io.emit('producto-agregado', product);
+    io.emit('producto-agregado', nuevoProducto);
   });
 
   socket.on('eliminar-producto', (productoId) => {
-    const products = loadProducts();
-    const index = products.findIndex((product) => product.id === productoId);
-    if (index !== -1) {
-      products.splice(index, 1);
-      saveProducts(products);
-
-      io.emit('producto-eliminado', productoId);
-    }
+    io.emit('producto-eliminado', productoId);
   });
 });
 
-function loadProducts() {
-  try {
-    const data = fs.readFileSync('productos.json', 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-function saveProducts(products) {
-  fs.writeFileSync('productos.json', JSON.stringify(products, null, 2), 'utf8');
-}
-
-
-
-
-
-
 const port = 8080;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Servidor Express corriendo en el puerto ${port}`);
 });
 
